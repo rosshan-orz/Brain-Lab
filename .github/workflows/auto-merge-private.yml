@@ -27,6 +27,8 @@ jobs:
               'rosshan-orz': 'HanQiushi',  // GitHub ID : 实际文件夹名
               'LY': 'LiaoYuan',
               'Lindahahaha': 'HuHaoqi'
+              'stevencummings341-prog': 'SunYixiang'
+              'YichengZhang11476': 'ZhangYicheng'
             };
 
             const actor = context.actor;
