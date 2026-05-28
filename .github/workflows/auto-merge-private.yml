@@ -24,7 +24,7 @@ jobs:
 
             // 1. 建立 GitHub ID 到实际文件夹名称的“花名册”
             const userMap = {
-              'Ross Han': 'HanQiushi',  // GitHub ID : 实际文件夹名
+              'rosshan-orz': 'HanQiushi',  // GitHub ID : 实际文件夹名
               'LY': 'LiaoYuan',
               'Lindahahaha': 'HuHaoqi'
             };
@@ -32,19 +32,19 @@ jobs:
             const actor = context.actor;
             // 2. 机器人去花名册里查对应的文件夹名。如果没写在花名册里，就默认用 GitHub ID。
             const folderName = userMap[actor] || actor; 
-            const expectedPrefix = `private/${folderName}/`;
-            const myFolder = `private/${folderName}/`;
+            const expectedPrefix = `Private/${folderName}/`;
+            const myFolder = `Private/${folderName}/`;
             
             let touchesPublic = false;
             let touchesOthersPrivate = false;
 
             // 逐个检查被修改的文件
             files.forEach(file => {
-              if (file.filename.startsWith('public/')) {
+              if (file.filename.startsWith('Public/')) {
                 touchesPublic = true;
-              } else if (file.filename.startsWith('private/') && !file.filename.startsWith(myFolder)) {
+              } else if (file.filename.startsWith('Private/') && !file.filename.startsWith(myFolder)) {
                 touchesOthersPrivate = true; // 动了别人的私有文件夹！
-              } else if (!file.filename.startsWith(myFolder) && !file.filename.startsWith('public/')) {
+              } else if (!file.filename.startsWith(myFolder) && !file.filename.startsWith('Public/')) {
                 touchesOthersPrivate = true; // 动了根目录的配置文件等！
               }
             });
