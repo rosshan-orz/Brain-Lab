@@ -1,0 +1,68 @@
+name: Auto Merge Private Folders
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  auto-approve-and-merge:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      contents: write
+      issues: write
+    
+    steps:
+      - name: Review PR and take action
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const { data: files } = await github.rest.pulls.listFiles({
+              owner: context.repo.owner, repo: context.repo.repo, pull_number: context.issue.number
+            });
+            
+            const actor = context.actor;
+            const myFolder = `private/${actor}/`;
+            
+            let touchesPublic = false;
+            let touchesOthersPrivate = false;
+
+            // 逐个检查被修改的文件
+            files.forEach(file => {
+              if (file.filename.startsWith('public/')) {
+                touchesPublic = true;
+              } else if (file.filename.startsWith('private/') && !file.filename.startsWith(myFolder)) {
+                touchesOthersPrivate = true; // 动了别人的私有文件夹！
+              } else if (!file.filename.startsWith(myFolder) && !file.filename.startsWith('public/')) {
+                touchesOthersPrivate = true; // 动了根目录的配置文件等！
+              }
+            });
+
+            if (touchesOthersPrivate) {
+              // 🔴 触发防御机制：机器人直接 Request Changes (请求修改)，强制拦截！
+              console.log("拦截：修改了未授权的目录！");
+              await github.rest.pulls.createReview({
+                owner: context.repo.owner, repo: context.repo.repo, pull_number: context.issue.number,
+                event: 'REQUEST_CHANGES',
+                body: `🚫 **拒绝合并**：@${actor}，你修改了其他成员的私人目录或根目录配置文件。请只在 \`${myFolder}\` 下工作。`
+              });
+            } else if (touchesPublic) {
+              // 🟡 正常流程：动了公共区，机器人留言并退下，等管理员来处理
+              console.log("挂起：等待管理员审批公共区修改。");
+              await github.rest.issues.createComment({
+                owner: context.repo.owner, repo: context.repo.repo, issue_number: context.issue.number,
+                body: `⏳ **系统提示**：检测到 \`/public\` 目录的修改。已通知管理员，请等待 Code Owner 审查。`
+              });
+            } else {
+              // 🟢 完美匹配：全都是自己的文件，机器人一秒过！
+              console.log("验证通过，正在自动合并...");
+              await github.rest.pulls.createReview({
+                owner: context.repo.owner, repo: context.repo.repo, pull_number: context.issue.number,
+                event: 'APPROVE',
+                body: `✅ **自动审查通过**：仅修改了 \`${myFolder}\`。`
+              });
+              await github.rest.pulls.merge({
+                owner: context.repo.owner, repo: context.repo.repo, pull_number: context.issue.number,
+                merge_method: 'squash'
+              });
+            }
