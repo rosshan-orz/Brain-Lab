@@ -20,9 +20,20 @@ jobs:
             const { data: files } = await github.rest.pulls.listFiles({
               owner: context.repo.owner, repo: context.repo.repo, pull_number: context.issue.number
             });
-            
+
+
+            // 1. 建立 GitHub ID 到实际文件夹名称的“花名册”
+            const userMap = {
+              'darkdragon99': 'zhangsan',  // GitHub ID : 实际文件夹名
+              'Alice-2024': 'alice',
+              'Bob_Builder': 'bob'
+            };
+
             const actor = context.actor;
-            const myFolder = `private/${actor}/`;
+            // 2. 机器人去花名册里查对应的文件夹名。如果没写在花名册里，就默认用 GitHub ID。
+            const folderName = userMap[actor] || actor; 
+            const expectedPrefix = `private/${folderName}/`;
+            const myFolder = `private/${folderName}/`;
             
             let touchesPublic = false;
             let touchesOthersPrivate = false;
