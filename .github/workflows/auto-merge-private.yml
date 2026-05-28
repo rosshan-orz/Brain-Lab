@@ -24,7 +24,7 @@ jobs:
 
             // 1. 建立 GitHub ID 到实际文件夹名称的“花名册”
             const userMap = {
-              'Ross Han': 'HanQiushi',  // GitHub ID : 实际文件夹名
+              'rosshan-orz': 'HanQiushi',  // GitHub ID : 实际文件夹名
               'LY': 'LiaoYuan',
               'Lindahahaha': 'HuHaoqi'
             };
