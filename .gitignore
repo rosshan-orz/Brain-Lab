@@ -1,0 +1,13 @@
+# Obsidian workspace (changes constantly, user-specific)
+.obsidian/workspace.json
+.obsidian/workspace-mobile.json
+
+# Trash
+.trash/
+
+# Sub-repos
+Brain-Lab/
+
+# OS files
+.DS_Store
+Thumbs.db
